@@ -1,14 +1,3 @@
-########################################################################################################
-# 函数签名自动生成模块，实现FLIRT签名库的生成和自动导入
-# 实现以下功能：
-#   1.查询数据库相关芯片信息，若存在该芯片，提供该芯片的编译器类型，否则提示该芯片未存储到数据库中
-#   2.用户输入选择的编译器类型
-#   3.利用ida命令行模式由elf文件生成idb文件
-#   4.调用ida2pat插件实现pat文件的创建
-#   5.调用sigmake命令生成sig文件
-#   6.将sig文件移至IDA下的sig目录下
-########################################################################################################
-
 import time,os
 import subprocess
 from db import database
@@ -16,16 +5,16 @@ from db import database
 class elf2sig_Plugin():
 	def __init__(self,ida,idcscript,flair):
 		self.basedir='E:\\daimaku\\elfs\\Nordic'
-		# 命令行启动idc脚本名称
+		# idc script name
 		self.idcscriptname=idcscript
-		# ida命令行启动程序路径
+		# idat.exe path
 		self.idatpath=ida+'\\idat.exe'
-		# flair sigmake路径
+		# flair sigmake path
 		self.sigmake=flair+'\\sigmake.exe'
-		# ida安装目录
+		# ida dir
 		self.ida=ida
 	
-	# 通过ida命令行程序生成idb数据库，调用ida2pat插件生成pat文件
+	# use idat.exe generate idb, call ida2pat plugin generate pat
 	def make_pat(self,target):
 		print('\\'.join(target.split('\\')[0:-1]))
 		os.chdir('\\'.join(target.split('\\')[0:-1]))
@@ -34,7 +23,7 @@ class elf2sig_Plugin():
 			cmd=self.idatpath+' -A -S'+self.idcscriptname+' '+target.split('\\')[-1]
 			subprocess.Popen(cmd)
 
-	# 制作签名
+	# make sig
 	def make_sig(self,target):
 		os.chdir('\\'.join(target.split('\\')[0:-1]))
 		target=target.replace('/','\\')
@@ -46,7 +35,7 @@ class elf2sig_Plugin():
 		p=subprocess.Popen('{} -n"{}" {} {}'.format(self.sigmake,sig_path.split('.')[0],pat_path,sig_path),shell=True)
 		while p.poll() is None:
 			time.sleep(0.5)
-		# 处理函数碰撞
+		# function collision
 		print('modify err...')
 		exc=target.split('\\')[-1][0:-3]+'exc'
 		lines=list()
@@ -62,7 +51,7 @@ class elf2sig_Plugin():
 						lines[i+1]='+'+lines[i+1]
 					f.write(lines[i])
 			f.close()
-		# 重新制作签名
+		# remake sig
 		print('remake sig...')
 		p=subprocess.Popen('{} -n"{}" {} {}'.format(self.sigmake,sig_path.split('.')[0],pat_path,sig_path),shell=True)
 		while p.poll() is None:
@@ -70,7 +59,7 @@ class elf2sig_Plugin():
 		time.sleep(1)
 		self.move_sig(target)
 	
-	# 将生成的sig签名移至IDA下的sig目录下
+	# move sig to sig dir under IDA path
 	def move_sig(self,target):
 		print('move sig...')
 		target_dir=self.ida+'\\sig\\arm\\'
@@ -86,11 +75,11 @@ class elf2sig_Plugin():
 		f.close()
 		print('end!\n\n')
 
-# 根据目录创建签名
+# make sig from dir
 def make_d(path):
 	idc="toidb.idc"
-	ida="D:\\IDA_Pro_v7.0_Portable"
-	flair='D:\\IDA_Pro_v7.0_Portable\\ida_plugin\\7-Flair\\bin'
+	ida="your ida path"
+	flair='your flair bin path'
 	flag=0
 	axf_paths=[]
 	elf_paths=[]
@@ -120,11 +109,11 @@ def make_d(path):
 	# 	plugin.make_sig(i)
 
 
-# 数据库查询
+# make dir from database
 def make(chip):
 	idc="toidb.idc"
-	ida="D:\\IDA_Pro_v7.0_Portable"
-	flair='D:\\IDA_Pro_v7.0_Portable\\ida_plugin\\7-Flair\\bin'
+	ida="your ida path"
+	flair='your flair bin path'
 	flag=0
 
 	plugin=elf2sig_Plugin(ida,idc,flair)
@@ -142,10 +131,10 @@ def make(chip):
 		if len(db.search(sql)) is not 0:
 			flag=1
 			data=db.search(sql)
-			print('该芯片的编译环境为:')
+			print('compile:')
 			for i in range(len(data)):
 				print(str(i)+'.'+data[i][0])
-			compile=int(input('选择编译环境为（请输入序号）：'))
+			compile=int(input('choose compile(input id)：'))
 			sql='select outputfile_name,outputfile_location from {} where chip_name like "%{}%" and compiler="{}"'.format(company,chip,data[compile][0])
 			data=db.search(sql)
 			for i in range(len(data)):
@@ -165,10 +154,9 @@ def make(chip):
 				time.sleep(1)
 				plugin.make_sig(fi)
 	if not flag:
-		print('数据库中暂无该芯片信息！')
+		print('no info！')
 		
 				
 if __name__=='__main__':
-	chip=str(input('请输入待查询的芯片型号：'))
+	chip=str(input('input'))
 	make(chip)
-	# make_d('E:\\daimaku\\elfs\\Nordic\\ARM Cortex-M0\\nRF51822\\')
