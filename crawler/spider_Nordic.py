@@ -17,7 +17,7 @@ class Nordic():
         self.data=list()
         self.hrefs=list()
 
-    # 爬取产品页面所有的产品链接
+    # grab product urls
     def get_chip_url(self):
         url='https://www.nordicsemi.com/Products'
         driver=webdriver.Chrome(executable_path=self.chromedriver,options=self.chrome_opt)
@@ -36,7 +36,7 @@ class Nordic():
             print(i)
         driver.quit()
     
-    # 进入所有产品详情界面并下载源码
+    # download sdk
     def download(self):
         self.get_chip_url()
         if not os.path.exists("yourstoragepath"):
