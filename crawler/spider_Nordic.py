@@ -1,17 +1,3 @@
-########################################################################################################
-# Nordic 官网爬虫类
-# https://www.nordicsemi.com/Products是该网站的产品页
-# 通过匹配关键词 class="see-all overlay azur skew-percent" 得到静态加载的产品链接，
-# 点击“更多”按钮后，匹配关键词 "read_fullstory" 得到动态加载的产品链接
-# 进入产品详情页面获取SDK和协议栈下载地址，需要动态点击
-# 其中nRF5系列提供了SDK，nRF9只有固件hex文件
-# 爬取方案如下：
-# 1. 设定chrome的默认下载地址
-# 2. 进入产品详情页面，获取芯片地址
-# 3. 自动进入芯片详情页面
-# 4. 自动点击“Download”按钮，获取匹配版本的SDK
-########################################################################################################
-
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
@@ -24,7 +10,7 @@ class Nordic():
     def __init__(self):
         self.chrome_opt=Options()
         self.chrome_opt.add_argument('--disable-gpu')
-        prefs={'download.default_directory':"E:\\daimaku\\sdk压缩包\\Nordic2"}
+        prefs={'download.default_directory':"yourstoragepath"}
         self.chrome_opt.add_experimental_option("excludeSwitches", ['enable-automation', 'enable-logging'])
         self.chrome_opt.add_experimental_option('prefs',prefs)
         self.chromedriver=r'C:\Program Files\Google\Chrome\Application\chromedriver.exe'
@@ -53,8 +39,8 @@ class Nordic():
     # 进入所有产品详情界面并下载源码
     def download(self):
         self.get_chip_url()
-        if not os.path.exists("E:\\daimaku\\sdk压缩包\\Nordic2"):
-            os.makedirs("E:\\daimaku\\sdk压缩包\\Nordic2")
+        if not os.path.exists("yourstoragepath"):
+            os.makedirs("yourstoragepath")
         hou=['/Download#infotabs','/Downloads#infotabs','/Compatible-downloads#infotabs']
         driver=webdriver.Chrome(executable_path=self.chromedriver,options=self.chrome_opt)
         for i in self.hrefs:
@@ -73,18 +59,7 @@ class Nordic():
             except Exception as e:
                 print(e)
         driver.quit()
-    
-    def unzip(self):
-        zips=os.listdir('E:\\daimaku\\sdk压缩包\\Nordic')
-        print(zips)
-        for zip in zips:
-            print(zipfile.is_zipfile(zip))
-            if zipfile.is_zipfile(zip):
-                if not os.path.exists('E:\\物联网固件代码库\\src\\Nordic'):
-                    os.makedirs('E:\\物联网固件代码库\\src\\Nordic')
-                zipfile.extractall('E:\\物联网固件代码库\\src\\Nordic')
 
 if __name__=='__main__':
     nordic=Nordic()
     nordic.download()
-    # nordic.unzip()
