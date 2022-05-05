@@ -26,7 +26,7 @@ class Dialog():
         'sec-fetch-user': '?1',
         'upgrade-insecure-requests': '1',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.72 Safari/537.36',
-        'cookie': '_ga_32VXG6GDN0=GS1.1.1614936831.2.0.1614936831.0; _ga=GA1.2.1401630282.1614147587; cookie-agreed=2; cookie-agreed-categories=%5B%22functional%22%2C%22analytics%22%5D; SSESS93eeb3387b844f48a616a7356cf3ed73=c3l-FDC1wAqzFnXWimdknmiFwvIIQlKw5vMnFr7ULm4'
+        'cookie': 'yourcookie'
     }
 
     def __init__(self):
@@ -44,8 +44,8 @@ class Dialog():
         url='https://www.dialog-semiconductor.com/user/login'
 
         data={
-            'name':'nopuuu',
-            'pass':'0shanshantql0',
+            'name':'yourusername',
+            'pass':'yourpassword',
             'form_id':'user_login_form',
             'form_build_id': 'form-ztJQd22kYJv2c30yCsXIKly4yJ4O9o4yhPnwWG28oPk',
             'op':'Log in',
@@ -77,15 +77,15 @@ class Dialog():
     
     def download_sdk(self):
          # 创建存储目录
-        if not os.path.exists('E:\\daimaku\\sdk压缩包\\Dialog2\\'):
-            os.makedirs('E:\\daimaku\\sdk压缩包\\Dialog2\\')
+        if not os.path.exists('yourstoragepath'):
+            os.makedirs('yourstoragepath')
         for i in range(len(self.sdk)):
             url=self.sdk[i]
             name=self.name[i].replace('%20',' ').replace('.','_').replace('/','_')
             req=requests.get(url=url,headers=self.headers)
             if req.status_code==200:
                 print('download [{}]...'.format(name))
-                with open('E:\\daimaku\\sdk压缩包\\Dialog2\\'+name+'.zip','wb') as f:
+                with open('yourstoragepath'+name+'.zip','wb') as f:
                     f.write(req.content)
                 f.close()
                 print('finish [{}] !'.format(name))
