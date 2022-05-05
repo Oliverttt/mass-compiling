@@ -1,14 +1,3 @@
-########################################################################################################
-# NXP官网爬虫类
-# NXP提供了在线的SDK生成工具——MCUXpresso，自动登录该界面实现SDK的生成与下载工作
-# 爬取方案如下：
-# 1. 利用selenium库自动登录该网页
-# 2. 首次遍历节点，获取所有的开发板的节点号并存储
-# 3. 自动点击相应节点，默认生成最新版本的SDK
-# 4. 选择SDK的开发链为支持所有平台，选择SDK中的内容包含所有库，自动生成SDK
-# 5. 待所有SDK生成结束后，在主界面上进行SDK的下载
-########################################################################################################
-
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
@@ -27,7 +16,7 @@ class NXP():
         self.downloadlist=list()
         self.cookies=''
 
-     # 登录，获得各开发板节点，并保存到txt中
+     # login
     def get_nodeid(self):
         url='https://mcuxpresso.nxp.com/en/select'
         driver=webdriver.Chrome(executable_path=self.chromedriver,options=self.chrome_opt)
@@ -60,7 +49,6 @@ class NXP():
                 f.write(line+'\n')
         f.close()
 
-    # 返回开发板的序号
     def check_id(self,board):
         with open('NXP_board_id.txt','r') as f:
             for line in f:
@@ -69,7 +57,7 @@ class NXP():
         f.close()
         return id
         
-    # 自制SDK，默认定制最新版本的SDK
+    # make sdks
     def create(self,nodeid):
         url='https://mcuxpresso.nxp.com/en/select'
         driver=webdriver.Chrome(executable_path=self.chromedriver,options=self.chrome_opt)
@@ -96,7 +84,7 @@ class NXP():
                 driver.execute_script("window.scrollTo(0, 90);")
                 driver.execute_script('document.getElementById("select-tree").scrollBy(0,30)')
             i+=1  
-        print('开始自制SDK...序号{}...名称{}'.format(next.get_attribute('data-nodeid'),next.get_attribute('innerText')))
+        print('start making SDK...id{}...name{}'.format(next.get_attribute('data-nodeid'),next.get_attribute('innerText')))
         next.click()
         WebDriverWait(driver,30).until(lambda driver: driver.find_element_by_id('select-button'))
         driver.find_element_by_id('select-button').click()
@@ -109,14 +97,13 @@ class NXP():
         driver.find_element_by_id('btn_rebuild').click()
         time.sleep(10)
         driver.quit()
-    
-    # 自制某范围内的sdk
+   
     def run(self,start,end):
         for i in range(start,end):
             self.create(self.data[i])
             time.sleep(1)
 
-    # 下载SDK
+    # download sdk
     def download(self):
         url='https://mcuxpresso.nxp.com/en/dashboard'
         driver=webdriver.Chrome(executable_path=self.chromedriver,options=self.chrome_opt)
@@ -131,7 +118,6 @@ class NXP():
         WebDriverWait(driver,240).until(lambda driver: driver.find_element_by_id('dashboard-sdk-show'))
         driver.find_element_by_id('dashboard-sdk-show').click()
         time.sleep(90)
-        # 所有SDK的下载链接
         hrefs=driver.find_elements_by_xpath('//a[@class="dash-download-action"]')
         for i in hrefs:
             try:
