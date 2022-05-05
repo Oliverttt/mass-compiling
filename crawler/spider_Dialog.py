@@ -1,13 +1,3 @@
-########################################################################################################
-# Dialog 官网sdk爬虫类
-# 爬取方案如下：
-# 1. 搜索关键词sdk
-# 2. 选择“Resources”类型的结果
-# 3. 通过“sdk”和“.zip”匹配sdk下载链接
-# 4. 构造携带cookies的请求访问sdk下载链接
-# 5. 按照sdk名称保存响应报文
-########################################################################################################
-
 import requests
 from lxml import etree
 import time,random
@@ -76,7 +66,6 @@ class Dialog():
                 print(e)
     
     def download_sdk(self):
-         # 创建存储目录
         if not os.path.exists('yourstoragepath'):
             os.makedirs('yourstoragepath')
         for i in range(len(self.sdk)):
